@@ -1,0 +1,65 @@
+# CONC Kitchen Production Hub — Deploy to GitHub Pages
+# Triggers on push to main. Runs generate_all.py, deploys hub as index.html.
+#
+# Setup (one-time):
+#   1. In repo Settings → Pages → Source: set to "GitHub Actions"
+#   2. Ensure these files exist in repo root:
+#      - 00_Production_Source_Table.xlsx (the single source of truth)
+#      - generate_all.py
+#      - hub_shell.html, hub_rcp.js, hub_logic.js (template parts)
+#      - CONC_Production_Hub.html (carries FRIDGE block)
+
+name: Deploy Hub
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # allow manual trigger from Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install openpyxl
+
+      - name: Generate all outputs
+        run: python3 generate_all.py
+
+      - name: Prepare Pages artifact
+        run: |
+          mkdir -p _site
+          cp outputs/CONC_Production_Hub.html _site/index.html
+          # Optional: include xlsx downloads
+          cp outputs/*.xlsx _site/ 2>/dev/null || true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
