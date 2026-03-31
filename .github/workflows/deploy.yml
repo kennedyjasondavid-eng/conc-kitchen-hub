@@ -5,7 +5,8 @@
 # Workflow:
 #   1. Build hub locally with CONC_Hub_Builder.html
 #   2. Upload CONC_Production_Hub.html + 00_Production_Source_Table.xlsx to repo
-#   3. Actions generates xlsx files and deploys everything to Pages
+#   3. Actions generates xlsx files, commits them back to repo, and deploys to Pages
+#   4. Next git pull brings generated files into local clone
 #
 # Setup (one-time):
 #   1. In repo Settings → Pages → Source: set to "GitHub Actions"
@@ -26,7 +27,7 @@ on:
   workflow_dispatch:  # allow manual trigger from Actions tab
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -49,6 +50,14 @@ jobs:
 
       - name: Generate xlsx outputs
         run: python3 generate_all.py --xlsx-only
+
+      - name: Commit generated files back to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          cp outputs/*.xlsx .
+          git add 01_Production_Schedule_generated.xlsx 03_Driver_Schedule_generated.xlsx Labour_Report_generated.xlsx
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Auto-generate xlsx outputs [skip ci]" && git push
 
       - name: Prepare Pages artifact
         run: |
