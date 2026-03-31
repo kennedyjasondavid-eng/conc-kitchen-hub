@@ -56,3 +56,45 @@ Push attempt: 2026-03-31 0657 AM
 Commit message: Hub Change to Driver Section AM/PM items 
  
 Already up to date.
+warning: in the working copy of 'CONC_Hub_Builder.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'CONC_Production_Hub.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'hub_logic.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'push-log.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'push-schedules_complex_CONC.bat', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'push-schedules_simple_CONC.bat', LF will be replaced by CRLF the next time Git touches it
+[main c4e96c9] Hub Change to Driver Section AM/PM items
+ Committer: Jason Kennedy <jason@conc.ca>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 5 files changed, 158 insertions(+), 8 deletions(-)
+ create mode 100644 push-schedules_complex_CONC.bat
+ create mode 100644 push-schedules_simple_CONC.bat
+To https://github.com/kennedyjasondavid-eng/conc-kitchen-hub.git
+   19df877..c4e96c9  main -> main
+Push succeeded at 2026-03-31 0657 AM 
+ 
+ 
+======================================== 
+Push attempt: 2026-03-31 0833 AM 
+======================================== 
+ 
+Commit message: Hub update 
+ 
+From https://github.com/kennedyjasondavid-eng/conc-kitchen-hub
+   c4e96c9..5e1a23d  main       -> origin/main
+Updating c4e96c9..5e1a23d
+Fast-forward
+ outputs/01_Production_Schedule_generated.xlsx | Bin 44579 -> 44579 bytes
+ outputs/03_Driver_Schedule_generated.xlsx     | Bin 15456 -> 15459 bytes
+ outputs/Labour_Report_generated.xlsx          | Bin 24884 -> 24881 bytes
+ 3 files changed, 0 insertions(+), 0 deletions(-)
