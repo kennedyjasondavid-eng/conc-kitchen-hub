@@ -256,7 +256,7 @@
   <button class="ob" id="obtn">📋 Overview</button>
   <button class="ob" id="todayBtn" style="display:none">📅 Today</button>
   <button class="ob" onclick="location.reload(true)" title="Force reload — bypasses browser cache">🔄</button>
-  <span style="font-size:11px;color:var(--tm);opacity:.7;white-space:nowrap" title="Hub build time">Built Mar 31 2026 15:14</span>
+  <span style="font-size:11px;color:var(--tm);opacity:.7;white-space:nowrap" title="Hub build time">Built Mar 31 2026 15:20</span>
   <div style="position:relative;display:inline-block">
     <input type="text" id="srch" placeholder="🔍 Search items…" style="font-family:inherit;font-size:13px;padding:7px 12px 7px 12px;border:2px solid var(--bd);border-radius:8px;width:180px;outline:none;transition:.15s" >
     <div id="srchR" style="display:none;position:absolute;top:100%;left:0;right:0;min-width:320px;max-height:340px;overflow-y:auto;background:var(--sf);border:2px solid var(--bd);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:50;margin-top:4px"></div>
@@ -1859,8 +1859,9 @@ function rMoves(dn){
     h+=` <span class="st ${sc(mv.from)}">${mv.from}</span>`;
     h+=`<span class="flow-arrow">→</span>`;
     h+=`<span class="st ${sc(mv.to?.split('→')[0]?.split('(')[0]?.trim())}">${mv.to}</span>`;
-    const svM=movServes(mv,dn);if(svM){const isAdv=svM.startsWith('→');const _lnk=parseServes(svM);h+=`<span class="sv${isAdv?' sv-adv':''}${_lnk?' sv-link':''}"${_lnk?` onclick="event.stopPropagation();goServes('${svM.replace(/'/g,"\\\\'")}')"`:``}>${svM}</span>`;}
-    if(mv.produced)h+=`<span class="sv sv-prod">⚙ ${mv.produced}</span>`;
+    const svM=movServes(mv,dn);
+    if(svM){const _svClean=svM.replace(/^→\s*/,'');const _svLnk=parseServes(svM);h+=`<span class="sv sv-adv${_svLnk?' sv-link':''}" title="Go to service day"${_svLnk?` onclick="event.stopPropagation();goServes('${svM.replace(/'/g,"\\\\'")}')"`:''}>📅 Service: ${_svClean}</span>`;}
+    if(mv.produced){const _prLnk=parseServes(mv.produced);h+=`<span class="sv sv-prod${_prLnk?' sv-link':''}" title="Go to production day"${_prLnk?` onclick="event.stopPropagation();goServes('${mv.produced.replace(/'/g,"\\\\'")}')"`:''}>⚙️ Produced: ${mv.produced}</span>`;}
     const m=[];
     if(mv.qty)m.push(mv.qty);
     if(mv.hold)m.push(`Hold: <span class="hold-${mv.holdClass}">${mv.hold}</span>`);
