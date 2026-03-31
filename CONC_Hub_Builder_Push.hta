@@ -1,0 +1,189 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>CONC Hub Push</title>
+<HTA:APPLICATION
+  ID="ConcPushHub"
+  APPLICATIONNAME="CONC Hub Push"
+  BORDER="thin"
+  CAPTION="yes"
+  CONTEXTMENU="no"
+  INNERBORDER="no"
+  MAXIMIZEBUTTON="no"
+  MINIMIZEBUTTON="yes"
+  SCROLL="no"
+  SELECTION="no"
+  SINGLEINSTANCE="yes"
+  SYSMENU="yes"
+  VERSION="1.0"
+  WINDOWSTATE="normal"
+/>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #2c2a26;
+    color: #f5f3ef;
+    padding: 16px;
+    user-select: none;
+  }
+  h1 { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #fff; letter-spacing: .3px; }
+  .sub { font-size: 11px; color: #a09890; margin-bottom: 14px; }
+  .path-box {
+    background: #1a1917;
+    border: 1px solid #3a3835;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 10px;
+    font-family: 'Consolas', monospace;
+    color: #8ab4f8;
+    margin-bottom: 14px;
+    word-break: break-all;
+  }
+  .path-label { color: #a09890; margin-bottom: 2px; font-size: 10px; }
+  .section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: #7a756b;
+    margin-bottom: 6px;
+  }
+  .btn-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  button {
+    flex: 1;
+    padding: 9px 12px;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover { opacity: .85; }
+  button:active { opacity: .7; }
+  .btn-simple  { background: #2e75b6; color: #fff; }
+  .btn-complex { background: #548235; color: #fff; }
+  .btn-open    { background: #3a3835; color: #d4d0c8; font-weight: 500; font-size: 11px; }
+  .divider     { border: none; border-top: 1px solid #3a3835; margin: 12px 0; }
+  #status      { font-size: 11px; color: #a09890; min-height: 16px; margin-top: 4px; }
+  #status.ok   { color: #70b86c; }
+  #status.err  { color: #e06c6c; }
+</style>
+<script language="JScript">
+var PATHS = [
+  { label: "Home  (Desktop)",  dir: "C:\\Users\\Jason\\Desktop\\conc-kitchen-hub" },
+  { label: "Work  (OneDrive)", dir: "C:\\Users\\JasonKennedy\\OneDrive - CHRISTIE OSSINGTON NEIGHBOURHOOD CENTRE\\conc-kitchen-hub" }
+];
+var LOG_NAME = "push-log.txt";
+
+function detectRepo() {
+  var fso = new ActiveXObject("Scripting.FileSystemObject");
+  for (var i = 0; i < PATHS.length; i++) {
+    if (fso.FolderExists(PATHS[i].dir)) return PATHS[i];
+  }
+  return null;
+}
+
+window.onload = function() {
+  window.resizeTo(420, 320);
+  var r = detectRepo();
+  if (r) {
+    document.getElementById("pathLabel").innerText = r.label;
+    document.getElementById("pathVal").innerText   = r.dir;
+  } else {
+    document.getElementById("pathLabel").innerText = "Not found";
+    document.getElementById("pathVal").innerText   = "Neither home nor work path detected";
+    document.getElementById("pathVal").style.color = "#e06c6c";
+  }
+};
+
+function dateStr() {
+  var d = new Date();
+  return (d.getMonth()+1) + "-" + d.getDate() + "-" + d.getFullYear();
+}
+
+function runGit(repoDir, msg, logFile) {
+  var shell = new ActiveXObject("WScript.Shell");
+  var escaped = msg.replace(/"/g, '\\"');
+  var cmd = "cmd /k \"cd /d \"" + repoDir + "\" && " +
+    "echo Pulling... && git pull && " +
+    "echo Staging... && git add -A && " +
+    "echo Committing... && git commit -m \"" + escaped + "\" && " +
+    "echo Pushing... && git push && " +
+    "echo. && echo [SUCCESS] Push complete!\"";
+  if (logFile) {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var ts  = fso.OpenTextFile(logFile, 8, true);
+    ts.WriteLine("");
+    ts.WriteLine("========================================");
+    ts.WriteLine("Push: " + new Date().toString());
+    ts.WriteLine("Msg:  " + msg);
+    ts.WriteLine("========================================");
+    ts.Close();
+  }
+  shell.Run(cmd, 1, false);
+  setStatus("Running -- see cmd window for output.", "");
+}
+
+function pushSimple() {
+  var r = detectRepo();
+  if (!r) { setStatus("Repo not found.", "err"); return; }
+  runGit(r.dir, "Update schedules " + dateStr(), null);
+}
+
+function pushComplex() {
+  var r = detectRepo();
+  if (!r) { setStatus("Repo not found.", "err"); return; }
+  var msg = prompt("Commit message:", "Update schedules " + dateStr());
+  if (msg === null || msg === "") { setStatus("Cancelled.", ""); return; }
+  runGit(r.dir, msg, r.dir + "\\" + LOG_NAME);
+}
+
+function openInEdge(filename) {
+  var r = detectRepo();
+  if (!r) { setStatus("Repo not found.", "err"); return; }
+  var shell = new ActiveXObject("WScript.Shell");
+  shell.Run("msedge \"" + r.dir + "\\" + filename + "\"", 1, false);
+}
+
+function setStatus(msg, cls) {
+  var el = document.getElementById("status");
+  el.innerText  = msg;
+  el.className  = cls;
+}
+</script>
+</head>
+<body>
+
+  <h1>CONC Hub &mdash; Push to GitHub</h1>
+  <p class="sub">Git push helper &ndash; auto-detects home vs work path</p>
+
+  <div class="path-box">
+    <div class="path-label" id="pathLabel">Detecting...</div>
+    <div id="pathVal">...</div>
+  </div>
+
+  <div class="section-label">Push</div>
+  <div class="btn-row">
+    <button class="btn-simple" onclick="pushSimple()">
+      &gt;&gt; Simple Push<br>
+      <span style="font-weight:400;font-size:10px">auto-timestamp &ndash; no prompt</span>
+    </button>
+    <button class="btn-complex" onclick="pushComplex()">
+      + Complex Push<br>
+      <span style="font-weight:400;font-size:10px">custom message &ndash; logs to file</span>
+    </button>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-label">Open in Edge</div>
+  <div class="btn-row">
+    <button class="btn-open" onclick="openInEdge('CONC_Hub_Builder.html')">Open Builder</button>
+    <button class="btn-open" onclick="openInEdge('CONC_Production_Hub.html')">Open Hub</button>
+  </div>
+
+  <div id="status"></div>
+
+</body>
+</html>
