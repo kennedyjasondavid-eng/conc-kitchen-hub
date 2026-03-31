@@ -77,3 +77,20 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  sync-sharepoint:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Power Automate flow
+        env:
+          WEBHOOK_URL: ${{ secrets.POWER_AUTOMATE_WEBHOOK }}
+        run: |
+          if [ -z "$WEBHOOK_URL" ]; then
+            echo "⚠ POWER_AUTOMATE_WEBHOOK secret not set — skipping SharePoint sync"
+            exit 0
+          fi
+          curl -s -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d '{"source":"github-actions","repo":"conc-kitchen-hub"}' \
+            --max-time 30 || echo "⚠ Power Automate webhook failed (non-blocking)"
