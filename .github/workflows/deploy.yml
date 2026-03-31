@@ -55,8 +55,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          cp outputs/*.xlsx .
-          git add 01_Production_Schedule_generated.xlsx 03_Driver_Schedule_generated.xlsx Labour_Report_generated.xlsx
+          git add outputs/01_Production_Schedule_generated.xlsx outputs/03_Driver_Schedule_generated.xlsx outputs/Labour_Report_generated.xlsx
           git diff --cached --quiet && echo "No changes to commit" || git commit -m "Auto-generate xlsx outputs [skip ci]" && git push
 
       - name: Prepare Pages artifact
