@@ -255,7 +255,7 @@
   <button class="ob" id="obtn">📋 Overview</button>
   <button class="ob" id="todayBtn" style="display:none">📅 Today</button>
   <button class="ob" onclick="location.reload(true)" title="Force reload — bypasses browser cache">🔄</button>
-  <span style="font-size:11px;color:var(--tm);opacity:.7;white-space:nowrap" title="Hub build time">Built Mar 31 2026 14:09</span>
+  <span style="font-size:11px;color:var(--tm);opacity:.7;white-space:nowrap" title="Hub build time">Built Mar 31 2026 14:15</span>
   <div style="position:relative;display:inline-block">
     <input type="text" id="srch" placeholder="🔍 Search items…" style="font-family:inherit;font-size:13px;padding:7px 12px 7px 12px;border:2px solid var(--bd);border-radius:8px;width:180px;outline:none;transition:.15s" >
     <div id="srchR" style="display:none;position:absolute;top:100%;left:0;right:0;min-width:320px;max-height:340px;overflow-y:auto;background:var(--sf);border:2px solid var(--bd);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:50;margin-top:4px"></div>
@@ -1045,7 +1045,7 @@ const MEALS={17:{lunch:'Roasted Veg Stacks',dinner:'Egg Noodles / Pasta, Beef St
 13:{lunch:'Tuna Rex + Chickpea Rex Salad',dinner:'🔸 BLAND ALT — Plain Chicken Leg + Naan + Stirfry Veg, Beef Massaman Curry, Vegan Massaman Curry, Rice'}};
 const WK1=[{dayName:'Sunday',date:'May 17',dateNum:17,sections:[{id:'send-am',label:'▲ Send AM',vanLoad:'1 HOTELS (hot)',items:[S('SEND AM','HOT Roasted Veg Stacks → Lunch (Veg)','1 hotel','Bloor',{route:'Bloor → Rex'})]},
 {id:'lunch',label:'☀ Lunch',items:[S('COOK','Cook Roasted Veg Stacks (Sun Lunch — Veg)','1 hotel','Bloor',{time:'30 min',notes:'Roast at Bloor; send hot AM',serves:'→ Wk. 4 Saturday Production (prepped); Wk. 1 Sunday Lunch (cooked)'})]},
-{id:'production',label:'⚙ Production',items:[S('PREP','Shape/Freeze Halal Breaded Chicken Burgers','185','Bloor',{time:'360 min',notes:'PREP ONLY — no oven. Shape, bread, freeze in blast chiller all day.',serves:'→ Wk. 1 Thursday Lunch'}),
+{id:'production',label:'⚙ Production',items:[S('PREP','Shape/Freeze Halal Breaded Chicken Burgers','185','Bloor',{time:'360 min',notes:'Bread, shape, blast-chill; NO oven — all hands-on',serves:'→ Wk. 1 Thursday Lunch'}),
 S('PREP','Jerk Cauliflower (Mon Dinner — Veg)','12 pcs','Bloor',{time:'30 min',serves:'→ Wk. 1 Monday Dinner'}),
 S('COOK','Cook Philly Steak overnight (→ Wk2 Sun Lunch)','27kg raw','Bloor',{time:'Overnight',notes:'Low & slow overnight; slice Monday AM',serves:'→ Wk. 2 Sunday Lunch'}),
 S('COOK','Beef CONC Salad Mix (→ Sat Lunch)','80 lbs','Bloor',{time:'120 min',notes:'Keep at Bloor; serve Sat',serves:'→ Wk.1 Saturday Lunch'}),
@@ -1260,7 +1260,7 @@ S('SEND PM','Cold Broccoli Salad → Wk3 Sun Lunch','3 hotels','Bloor',{route:'B
 const WK3=[{dayName:'Sunday',date:'May 31',dateNum:31,sections:[{id:'send-am',label:'▲ Send AM',vanLoad:'1 HOTELS (hot)',items:[S('SEND AM','HOT Roasted Veg Stacks → Lunch (Veg)','1 hotel','Bloor',{route:'Bloor → Rex'})]},
 {id:'lunch',label:'☀ Lunch',items:[S('COOK','Cook Roasted Veg Stacks (Sun Lunch — Veg)','1 hotel','Bloor',{time:'30 min',notes:'Roast at Bloor; send hot AM'})]},
 {id:'production',label:'⚙ Production',items:[S('PREP','Marinate Moroccan Chicken Legs (→ Mon Dinner)','165 pcs','Bloor',{time:'180 min',serves:'→ Wk. 3 Monday Dinner'}),
-S('PREP','Shape/Freeze Halal Chicken Burgers (→ Thu Lunch)','185','Bloor',{time:'360 min',notes:'PREP ONLY — no oven. Shape, bread, freeze; blast chiller',serves:'→ Wk. 3 Thursday Lunch'}),
+S('PREP','Shape/Freeze Halal Chicken Burgers (→ Thu Lunch)','185','Bloor',{time:'360 min',notes:'Bread, shape, blast-chill; NO oven — all hands-on',serves:'→ Wk. 3 Thursday Lunch'}),
 S('PREP','Season Caribbean Drumsticks (→ Tue Dinner)','300 pcs / 2 bins','Bloor',{time:'30 min',notes:'Season; hold in bins',serves:'→ Wk. 3 Tuesday Dinner'}),
 S('PREP','Prep Lettuce (→ Mon Lunch — Tuna Wraps)','2 bins','LAN',{time:'20 min',notes:'Prep at LAN; send cold Mon AM',serves:'→ Wk. 3 Monday Lunch'})]},
 {id:'dinner',label:'🌙 Dinner',items:[S('COOK','Halal Beef Meatballs (→ Sun Dinner)','155','Bloor',{time:'30 min',notes:'bake; finish in sauce'}),
