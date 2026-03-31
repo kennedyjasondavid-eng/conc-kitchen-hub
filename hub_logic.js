@@ -4,23 +4,22 @@ const ALL_SITES=['Bloor','LAN','Rex'];
 let SITE=new Set(ALL_SITES),SK=true,SD=true,WK=1,DI=null;
 function siteAll(){return SITE.size===3}
 function siteOnly(s){return SITE.size===1&&SITE.has(s)}
-function isSend(t){return t==='SEND'||t==='SEND AM'||t==='SEND PM'}
 function vis(it){
   let siteOK=false;
   if(siteAll()) siteOK=true;
-  else if(siteOnly('Rex')) siteOK=isSend(it.type);
+  else if(siteOnly('Rex')) siteOK=it.type==='SEND';
   else{
     if(SITE.has(it.site)) siteOK=true;
-    if(SITE.has('Rex')&&isSend(it.type)) siteOK=true;
+    if(SITE.has('Rex')&&it.type==='SEND') siteOK=true;
   }
   if(!siteOK)return false;
-  if(isSend(it.type))return SD;
+  if(it.type==='SEND')return SD;
   return SK;
 }
 
 function secVis(s){
-  const isSendSec = s.id==="send-am" || s.id==="send-pm";
-  if(isSendSec) return SD;
+  const isSend = s.id==="send-am" || s.id==="send-pm";
+  if(isSend) return SD;
   return SK;
 }
 
@@ -45,7 +44,7 @@ function orderedSections(d){
   return order.map(id=>d.sections.find(s=>s.id===id)).filter(Boolean);
 }
 
-function bc(t){return{SEND:'b-send','SEND AM':'b-send','SEND PM':'b-send',HEAT:'b-heat',COOK:'b-cook',PREP:'b-prep',SOUP:'b-soup',ALT:'b-alt',PULL:'b-pull',PARK:'b-park'}[t]||'b-send'}
+function bc(t){return{SEND:'b-send',HEAT:'b-heat',COOK:'b-cook',PREP:'b-prep',SOUP:'b-soup',ALT:'b-alt',PULL:'b-pull',PARK:'b-park'}[t]||'b-send'}
 function sc(s){if(!s)return'';const l=s.toLowerCase();return l==='bloor'?'s-b':l==='lan'?'s-l':l==='gc'?'s-g':l==='rex'?'s-r':''}
 
 function movSiteMatch(x){for(const s of SITE){if(x.from===s||x.to?.includes(s))return true}return false}
@@ -170,7 +169,7 @@ function rSec(sec,dateNum){
     h+=`<span class="tb ${bc(it.type)}">${it.type}</span><strong>${it.item}</strong>`;
     if(it.site)h+=`<span class="st ${sc(it.site)}">${it.site}</span>`;
     if(it.route&&SD)h+=`<span class="rt">${it.route}</span>`;
-    if(it.serves){const isAdv=it.serves.startsWith('→');const isSendSec=sec.id==='send-am'||sec.id==='send-pm';if(isAdv||!isSendSec){const _lnk=parseServes(it.serves);h+=`<span class="sv${isAdv?' sv-adv':''}${_lnk?' sv-link':''}"${_lnk?` onclick="event.stopPropagation();goServes('${it.serves.replace(/'/g,"\\\\'")}')"`:``}>${it.serves}</span>`;}}
+    if(it.serves){const isAdv=it.serves.startsWith('→');const isSend=sec.id==='send-am'||sec.id==='send-pm';if(isAdv||!isSend){const _lnk=parseServes(it.serves);h+=`<span class="sv${isAdv?' sv-adv':''}${_lnk?' sv-link':''}"${_lnk?` onclick="event.stopPropagation();goServes('${it.serves.replace(/'/g,"\\\\'")}')"`:``}>${it.serves}</span>`;}}
     const m=[];
     if(it.qty)m.push(it.qty);if(it.time)m.push('⏱ '+it.time);
     if(it.notes)m.push(isF(it.notes)?`<span class="flag">${it.notes}</span>`:it.notes);
@@ -276,6 +275,20 @@ document.getElementById('pNext').onclick=()=>navDay(1);
 document.getElementById('pX').onclick=closePop;
 document.getElementById('ov').onclick=closePop;
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closePop();if(DI!==null&&e.key==='ArrowLeft')navDay(-1);if(DI!==null&&e.key==='ArrowRight')navDay(1);if(e.key==='t'&&DI===null&&!document.getElementById('ow').classList.contains('a')&&TODAY_INFO)goToday();if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();document.getElementById('srch').focus()}});
+
+// Swipe navigation on popover (horizontal-dominant gestures only)
+(function(){
+  let _tx=null,_ty=null;
+  const pop=document.getElementById('pop');
+  pop.addEventListener('touchstart',e=>{_tx=e.touches[0].clientX;_ty=e.touches[0].clientY;},{passive:true});
+  pop.addEventListener('touchend',e=>{
+    if(_tx===null)return;
+    const dx=e.changedTouches[0].clientX-_tx;
+    const dy=e.changedTouches[0].clientY-_ty;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)&&DI!==null)dx<0?navDay(1):navDay(-1);
+    _tx=null;_ty=null;
+  },{passive:true});
+})();
 
 // Site filter (single select)
 function syncSiteBtns(){
