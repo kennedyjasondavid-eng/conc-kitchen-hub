@@ -1,0 +1,200 @@
+/* ── CONC Hub Builder — Styles ──────────────────────────────────────────── */
+
+:root {
+  --bg: #f7f6f3;
+  --tx: #2c2a26;
+  --tx2: #666;
+  --card: #fff;
+  --bdr: #e8e4dd;
+  --accent: #2e75b6;
+  --ok: #375623;
+  --warn: #7f6000;
+  --err: #c00;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.wrap {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.hdr {
+  background: var(--tx);
+  color: #fff;
+  border-radius: 10px;
+  padding: 16px 22px;
+  margin-bottom: 24px;
+}
+.hdr h1 {
+  font-size: 20px;
+  font-weight: 700;
+}
+.hdr h1 span { font-weight: 400; opacity: .65; font-size: 15px; }
+.hdr-tag {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  opacity: .55;
+  margin-top: 2px;
+}
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--bdr);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card h2 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--tx2);
+  margin-bottom: 12px;
+}
+
+/* ── Upload zones ───────────────────────────────────────────────────────── */
+.drop {
+  border: 2px dashed var(--bdr);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  position: relative;
+}
+.drop:hover, .drop.over {
+  border-color: var(--accent);
+  background: #eef4fb;
+}
+.drop.loaded {
+  border-color: var(--ok);
+  border-style: solid;
+  background: #f0f7ed;
+}
+.drop-icon { font-size: 28px; margin-bottom: 6px; }
+.drop-label { font-size: 14px; font-weight: 600; }
+.drop-hint { font-size: 12px; color: var(--tx2); margin-top: 4px; }
+.drop-file {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ok);
+  margin-top: 8px;
+}
+.drop input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+}
+
+.uploads { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .uploads { grid-template-columns: 1fr; } }
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 24px;
+  border: none; border-radius: var(--radius);
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s, transform .05s;
+}
+.btn:active { transform: scale(.98); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn-build {
+  background: var(--accent); color: #fff;
+}
+.btn-build:hover:not(:disabled) { opacity: .9; }
+.btn-dl {
+  background: var(--ok); color: #fff;
+}
+.btn-dl:hover:not(:disabled) { opacity: .9; }
+.btn-row {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+
+/* ── Validation log ─────────────────────────────────────────────────────── */
+.log { margin-top: 16px; }
+.log-line {
+  font-size: 12px;
+  font-family: 'Consolas', 'Menlo', monospace;
+  padding: 3px 0;
+  line-height: 1.6;
+}
+.log-ok   { color: var(--ok); }
+.log-warn { color: var(--warn); }
+.log-err  { color: var(--err); font-weight: 600; }
+.log-info { color: var(--tx2); }
+
+.log-section {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--tx2);
+  margin-top: 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--bdr);
+}
+
+/* ── Stats bar ──────────────────────────────────────────────────────────── */
+.stats {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  font-size: 12px; color: var(--tx2);
+  padding: 10px 0;
+}
+.stat-val { font-weight: 700; color: var(--tx); }
+
+/* ── FRIDGE info ────────────────────────────────────────────────────────── */
+.fridge-info {
+  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+.fridge-info.has-data { background: #f0f7ed; color: var(--ok); }
+.fridge-info.empty    { background: #fff3cd; color: var(--warn); }
+
+/* ── Progress ───────────────────────────────────────────────────────────── */
+.progress-msg {
+  font-size: 13px;
+  color: var(--tx2);
+  font-style: italic;
+}
+
+/* ── Hidden ─────────────────────────────────────────────────────────────── */
+.hidden { display: none; }
+
+/* ── SheetJS status ─────────────────────────────────────────────────────── */
+.sheetjs-card { padding: 12px 20px; }
+.sheetjs-status {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600;
+}
+.sheetjs-status.ok   { color: var(--ok); }
+.sheetjs-status.fail { color: var(--err); }
+.sheetjs-icon { font-size: 16px; }
+.sheetjs-fix p {
+  font-size: 13px; color: var(--tx2);
+  margin: 10px 0 8px;
+}
+.sheetjs-fix code {
+  background: #f0ede8; padding: 2px 6px;
+  border-radius: 3px; font-size: 12px;
+}
+.sheetjs-fix a {
+  color: var(--accent); text-decoration: none;
+}
+.sheetjs-fix a:hover { text-decoration: underline; }
+.sheetjs-card.ok { border-color: #b6d7a8; background: #f9fcf7; }

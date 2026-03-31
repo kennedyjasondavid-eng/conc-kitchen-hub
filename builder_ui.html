@@ -1,0 +1,76 @@
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="hdr">
+    <h1>CONC Kitchen <span>Hub Builder</span></h1>
+    <div class="hdr-tag">Upload source table → Build hub → Download</div>
+  </div>
+
+  <!-- SheetJS status banner -->
+  <div class="card sheetjs-card" id="sheetjsCard">
+    <div class="sheetjs-status" id="sheetjsStatus">
+      <span class="sheetjs-icon" id="sheetjsIcon">⏳</span>
+      <span id="sheetjsMsg">Loading SheetJS library…</span>
+    </div>
+    <div class="sheetjs-fix hidden" id="sheetjsFix">
+      <p>SheetJS didn't load from CDN. Drop <code>xlsx.full.min.js</code> here to load it manually:</p>
+      <div class="drop" id="dropSheetjs" style="padding:16px">
+        <div class="drop-label">Drop xlsx.full.min.js</div>
+        <div class="drop-hint">Download from <a href="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" target="_blank" rel="noopener">cdn.sheetjs.com</a> or <a href="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" target="_blank" rel="noopener">cdnjs</a></div>
+        <input type="file" accept=".js" id="sheetjsInput">
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1: Upload -->
+  <div class="card">
+    <h2>1 · Upload</h2>
+    <div class="uploads">
+      <div class="drop" id="dropSource">
+        <div class="drop-icon">📊</div>
+        <div class="drop-label">Source Table (.xlsx)</div>
+        <div class="drop-hint">00_Production_Source_Table.xlsx</div>
+        <div class="drop-file hidden" id="srcFileName"></div>
+        <input type="file" accept=".xlsx,.xls" id="srcInput">
+      </div>
+      <div class="drop" id="dropHub">
+        <div class="drop-icon">🏗️</div>
+        <div class="drop-label">Current Hub (.html)</div>
+        <div class="drop-hint">Optional — for FRIDGE carry-forward</div>
+        <div class="drop-file hidden" id="hubFileName"></div>
+        <div class="fridge-info empty hidden" id="fridgeInfo"></div>
+        <input type="file" accept=".html,.htm" id="hubInput">
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Build -->
+  <div class="card">
+    <h2>2 · Validate &amp; Build</h2>
+    <div class="btn-row">
+      <button class="btn btn-build" id="btnBuild" disabled>Build Hub</button>
+      <button class="btn btn-dl hidden" id="btnDownload">⬇ Download Hub</button>
+      <span class="progress-msg hidden" id="progress"></span>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats hidden" id="statsBar">
+      <span>Rows: <span class="stat-val" id="statRows">—</span></span>
+      <span>SEND: <span class="stat-val" id="statSend">—</span></span>
+      <span>Cold-chain: <span class="stat-val" id="statCold">—</span></span>
+      <span>MOVES: <span class="stat-val" id="statMoves">—</span></span>
+      <span>MEALS: <span class="stat-val" id="statMeals">—</span></span>
+    </div>
+
+    <!-- Validation log -->
+    <div class="log hidden" id="logPanel"></div>
+  </div>
+
+  <!-- Step 3: Output info -->
+  <div class="card hidden" id="outputCard">
+    <h2>3 · Output</h2>
+    <div class="stats" id="outputStats"></div>
+    <div class="log" id="outputLog"></div>
+  </div>
+
+</div>

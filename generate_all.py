@@ -58,8 +58,11 @@ SECTION_LABELS = {'send-am':'▲ Send AM','lunch':'☀ Lunch','production':'⚙ 
 # ── Labour rules ───────────────────────────────────────────────────────────────
 LONG_COOK_ITEMS = [
     'massaman','arroz con pollo','fried rice','white chili','white chilli',
-    'sous vide','sausage pasta sauce'
+    'sous vide','sausage pasta sauce',
+    'west african peanut stew','caribbean stew','beef & vegetable stew',
+    'vegan chili','chickpea shakshuka','beef stroganoff'
 ]
+OVERNIGHT_ITEMS = ['philly steak overnight']
 def labour_times(row):
     """Derive active_min and oven_min from cook_min + item name + type."""
     try:
@@ -70,6 +73,8 @@ def labour_times(row):
     item_lower = (row.get('item') or '').lower()
     if typ == 'HEAT':
         return 15, 0
+    if any(k in item_lower for k in OVERNIGHT_ITEMS):
+        return 30, cook_min
     if any(k in item_lower for k in LONG_COOK_ITEMS):
         return cook_min // 2, cook_min
     return cook_min, cook_min

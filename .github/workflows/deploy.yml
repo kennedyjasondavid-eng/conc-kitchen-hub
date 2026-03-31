@@ -1,5 +1,11 @@
 # CONC Kitchen Production Hub — Deploy to GitHub Pages
-# Triggers on push to main. Runs generate_all.py, deploys hub as index.html.
+# Triggers on push to main. Serves hub HTML from repo root,
+# runs generate_all.py for xlsx spreadsheet downloads.
+#
+# Workflow:
+#   1. Build hub locally with CONC_Hub_Builder.html
+#   2. Upload CONC_Production_Hub.html + 00_Production_Source_Table.xlsx to repo
+#   3. Actions generates xlsx files and deploys everything to Pages
 #
 # Setup (one-time):
 #   1. In repo Settings → Pages → Source: set to "GitHub Actions"
@@ -7,7 +13,7 @@
 #      - 00_Production_Source_Table.xlsx (the single source of truth)
 #      - generate_all.py
 #      - hub_shell.html, hub_rcp.js, hub_logic.js (template parts)
-#      - CONC_Production_Hub.html (carries FRIDGE block)
+#      - CONC_Production_Hub.html (built locally with Hub Builder)
 
 name: Deploy Hub
 
@@ -38,15 +44,23 @@ jobs:
       - name: Install dependencies
         run: pip install openpyxl
 
-      - name: Generate all outputs
-        run: python3 generate_all.py
+      - name: Generate xlsx outputs
+        run: python3 generate_all.py --xlsx-only
 
       - name: Prepare Pages artifact
         run: |
           mkdir -p _site
-          cp outputs/CONC_Production_Hub.html _site/index.html
-          # Optional: include xlsx downloads
-          cp outputs/*.xlsx _site/ 2>/dev/null || true
+
+          # Hub HTML: use the builder-generated file from repo root
+          cp CONC_Production_Hub.html _site/index.html
+
+          # Spreadsheet downloads
+          cp outputs/01_Production_Schedule_generated.xlsx _site/ 2>/dev/null || true
+          cp outputs/03_Driver_Schedule_generated.xlsx _site/ 2>/dev/null || true
+          cp outputs/Labour_Report_generated.xlsx _site/ 2>/dev/null || true
+
+          echo "── Pages artifact contents ──"
+          ls -la _site/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
