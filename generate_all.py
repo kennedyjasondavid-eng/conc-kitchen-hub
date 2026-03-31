@@ -1247,6 +1247,12 @@ def main():
             wb.save(p)
             print(f"  Written: {p}")
 
+    # ── Copy source table to outputs for co-location with hub ──
+    import shutil
+    src_copy = OUTPUT_DIR / '00_Production_Source_Table.xlsx'
+    shutil.copy2(XLSX_PATH, src_copy)
+    print(f"\n  Copied source table: {src_copy}")
+
     print("\n✓ Done.")
 
 if __name__ == '__main__':
