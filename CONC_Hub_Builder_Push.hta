@@ -84,6 +84,39 @@ function detectRepo() {
   return null;
 }
 
+// ── Find git.exe via registry, then common paths ──────────────────
+function findGit() {
+  var fso   = new ActiveXObject("Scripting.FileSystemObject");
+  var shell = new ActiveXObject("WScript.Shell");
+
+  // 1. Registry (Git for Windows always writes this)
+  var regKeys = [
+    "HKLM\\SOFTWARE\\GitForWindows\\InstallPath",
+    "HKLM\\SOFTWARE\\WOW6432Node\\GitForWindows\\InstallPath",
+    "HKCU\\SOFTWARE\\GitForWindows\\InstallPath"
+  ];
+  for (var i = 0; i < regKeys.length; i++) {
+    try {
+      var installPath = shell.RegRead(regKeys[i]);
+      var candidate = installPath + "\\cmd\\git.exe";
+      if (fso.FileExists(candidate)) return candidate;
+    } catch(e) {}
+  }
+
+  // 2. Common install locations as fallback
+  var common = [
+    "C:\\Program Files\\Git\\cmd\\git.exe",
+    "C:\\Program Files\\Git\\bin\\git.exe",
+    "C:\\Program Files (x86)\\Git\\cmd\\git.exe",
+    "C:\\Users\\JasonKennedy\\AppData\\Local\\Programs\\Git\\cmd\\git.exe",
+    "C:\\Users\\Jason\\AppData\\Local\\Programs\\Git\\cmd\\git.exe"
+  ];
+  for (var j = 0; j < common.length; j++) {
+    if (fso.FileExists(common[j])) return common[j];
+  }
+  return null;
+}
+
 window.onload = function() {
   window.resizeTo(420, 320);
   var r = detectRepo();
@@ -102,26 +135,50 @@ function dateStr() {
   return (d.getMonth()+1) + "-" + d.getDate() + "-" + d.getFullYear();
 }
 
+// ── Write a temp .bat and run it ──────────────────────────────────
 function runGit(repoDir, msg, logFile) {
-  var shell = new ActiveXObject("WScript.Shell");
-  var escaped = msg.replace(/"/g, '\\"');
-  var cmd = "cmd /k \"cd /d \"" + repoDir + "\" && " +
-    "echo Pulling... && git pull && " +
-    "echo Staging... && git add -A && " +
-    "echo Committing... && git commit -m \"" + escaped + "\" && " +
-    "echo Pushing... && git push && " +
-    "echo. && echo [SUCCESS] Push complete!\"";
-  if (logFile) {
-    var fso = new ActiveXObject("Scripting.FileSystemObject");
-    var ts  = fso.OpenTextFile(logFile, 8, true);
-    ts.WriteLine("");
-    ts.WriteLine("========================================");
-    ts.WriteLine("Push: " + new Date().toString());
-    ts.WriteLine("Msg:  " + msg);
-    ts.WriteLine("========================================");
-    ts.Close();
+  var gitExe = findGit();
+  if (!gitExe) {
+    setStatus("Git not found. Is Git for Windows installed?", "err");
+    return;
   }
-  shell.Run(cmd, 1, false);
+
+  var fso    = new ActiveXObject("Scripting.FileSystemObject");
+  var shell  = new ActiveXObject("WScript.Shell");
+  var tmpBat = repoDir + "\\__push_tmp.bat";
+  var safeMsg = msg.replace(/"/g, "'");
+
+  var logLines = logFile
+    ? "echo ======================================== >> \"" + logFile + "\"\r\n" +
+      "echo Push: %DATE% %TIME% >> \"" + logFile + "\"\r\n" +
+      "echo Msg:  " + safeMsg + " >> \"" + logFile + "\"\r\n" +
+      "echo ======================================== >> \"" + logFile + "\"\r\n"
+    : "";
+
+  var bat =
+    "@echo off\r\n" +
+    "cd /d \"" + repoDir + "\"\r\n" +
+    logLines +
+    "echo Pulling...\r\n" +
+    "\"" + gitExe + "\" pull\r\n" +
+    "if errorlevel 1 (echo [ERROR] Pull failed & pause & exit /b 1)\r\n" +
+    "echo Staging...\r\n" +
+    "\"" + gitExe + "\" add -A\r\n" +
+    "echo Committing...\r\n" +
+    "\"" + gitExe + "\" commit -m \"" + safeMsg + "\"\r\n" +
+    "echo Pushing...\r\n" +
+    "\"" + gitExe + "\" push\r\n" +
+    "if errorlevel 1 (echo [ERROR] Push failed & pause & exit /b 1)\r\n" +
+    "echo.\r\n" +
+    "echo [SUCCESS] Push complete!\r\n" +
+    "del \"" + tmpBat + "\"\r\n" +
+    "pause\r\n";
+
+  var ts = fso.CreateTextFile(tmpBat, true);
+  ts.Write(bat);
+  ts.Close();
+
+  shell.Run("cmd /k \"" + tmpBat + "\"", 1, false);
   setStatus("Running -- see cmd window for output.", "");
 }
 
