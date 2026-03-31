@@ -145,7 +145,7 @@ function runGit(repoDir, msg, logFile) {
 
   var fso    = new ActiveXObject("Scripting.FileSystemObject");
   var shell  = new ActiveXObject("WScript.Shell");
-  var tmpBat = repoDir + "\\__push_tmp.bat";
+  var tmpBat = shell.ExpandEnvironmentStrings("%TEMP%") + "\\__conc_push_tmp.bat";
   var safeMsg = msg.replace(/"/g, "'");
 
   var logLines = logFile
@@ -159,13 +159,13 @@ function runGit(repoDir, msg, logFile) {
     "@echo off\r\n" +
     "cd /d \"" + repoDir + "\"\r\n" +
     logLines +
-    "echo Pulling...\r\n" +
-    "\"" + gitExe + "\" pull\r\n" +
-    "if errorlevel 1 (echo [ERROR] Pull failed & pause & exit /b 1)\r\n" +
     "echo Staging...\r\n" +
     "\"" + gitExe + "\" add -A\r\n" +
     "echo Committing...\r\n" +
     "\"" + gitExe + "\" commit -m \"" + safeMsg + "\"\r\n" +
+    "echo Pulling...\r\n" +
+    "\"" + gitExe + "\" pull --rebase\r\n" +
+    "if errorlevel 1 (echo [ERROR] Pull failed & pause & exit /b 1)\r\n" +
     "echo Pushing...\r\n" +
     "\"" + gitExe + "\" push\r\n" +
     "if errorlevel 1 (echo [ERROR] Push failed & pause & exit /b 1)\r\n" +
