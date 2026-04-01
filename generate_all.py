@@ -1229,10 +1229,14 @@ def main():
 
     if not xlsx_only:
         print("\n── Hub ──────────────────────────────────────")
-        hub_html = generate_hub(rows)
-        out_path = OUTPUT_DIR / 'CONC_Production_Hub.html'
-        out_path.write_text(hub_html, encoding='utf-8')
-        print(f"  Written: {out_path} ({len(hub_html):,} chars)")
+        try:
+            hub_html = generate_hub(rows)
+            out_path = OUTPUT_DIR / 'CONC_Production_Hub.html'
+            out_path.write_text(hub_html, encoding='utf-8')
+            print(f"  Written: {out_path} ({len(hub_html):,} chars)")
+        except Exception as e:
+            print(f"  ✗ Hub generation failed: {e}")
+            print("  (xlsx outputs will still be generated)")
 
     if not hub_only:
         print("\n── Production Schedule ──────────────────────")
