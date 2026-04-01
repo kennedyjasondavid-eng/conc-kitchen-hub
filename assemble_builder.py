@@ -104,6 +104,14 @@ output = f"""<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CONC Kitchen — Hub Builder</title>
+<script>
+// Apply saved theme before first paint — prevents flash
+(function(){{
+  var s=localStorage.getItem('conc-builder-theme');
+  if(s==='dark') document.documentElement.setAttribute('data-theme','dark');
+  else if(s==='light') document.documentElement.setAttribute('data-theme','light');
+}})();
+</script>
 <style>
 {builder_css}
 </style>
@@ -131,6 +139,40 @@ eval(_d('{builder_core_b64}'));
 </body>
 </html>
 """
+
+# Inject dark mode toggle JS — runs after DOM ready
+dm_js = """
+<script>
+function downloadPushBat() {
+  var bat = '@echo off\\r\\ngit add -A\\r\\ngit commit -m "Update %DATE%"\\r\\ngit pull --rebase\\r\\ngit push\\r\\npause\\r\\n';
+  var a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(bat);
+  a.download = 'push.bat';
+  a.click();
+}
+function builderToggleDark() {
+  var html = document.documentElement;
+  var cur = html.getAttribute('data-theme');
+  var sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var isDark = cur === 'dark' || (cur !== 'light' && sysDark);
+  var next = isDark ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('conc-builder-theme', next);
+  var btn = document.getElementById('dmToggle');
+  if (btn) btn.textContent = next === 'dark' ? '☀ Light' : '🌙 Dark';
+}
+// Sync button label on load
+(function() {
+  var html = document.documentElement;
+  var saved = localStorage.getItem('conc-builder-theme');
+  var sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var isDark = saved === 'dark' || (saved !== 'light' && sysDark);
+  var btn = document.getElementById('dmToggle');
+  if (btn) btn.textContent = isDark ? '☀ Light' : '🌙 Dark';
+})();
+</script>
+"""
+output = output.replace('</body>\n</html>', dm_js + '</body>\n</html>')
 
 out_path = BASE / 'CONC_Hub_Builder.html'
 out_path.write_text(output, encoding='utf-8')

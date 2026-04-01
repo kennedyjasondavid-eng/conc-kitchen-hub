@@ -232,9 +232,11 @@ function openPop(idx){
   document.getElementById('pB').innerHTML=h;
   document.getElementById('pop').classList.add('a');
   document.getElementById('ov').classList.add('a');
+  document.getElementById('pPrev').classList.add('vis');
+  document.getElementById('pNext').classList.add('vis');
   updNav();
 }
-function closePop(){document.getElementById('pop').classList.remove('a');document.getElementById('ov').classList.remove('a');DI=null}
+function closePop(){document.getElementById('pop').classList.remove('a');document.getElementById('ov').classList.remove('a');document.getElementById('pPrev').classList.remove('vis');document.getElementById('pNext').classList.remove('vis');DI=null}
 
 function navDay(dir){
   if(DI===null)return;
@@ -278,15 +280,20 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closePop();if(DI!==n
 
 // Swipe navigation on popover (horizontal-dominant gestures only)
 (function(){
-  let _tx=null,_ty=null;
+  let _tx=null,_ty=null,_lock=null;
   const pop=document.getElementById('pop');
-  pop.addEventListener('touchstart',e=>{_tx=e.touches[0].clientX;_ty=e.touches[0].clientY;},{passive:true});
+  pop.addEventListener('touchstart',e=>{_tx=e.touches[0].clientX;_ty=e.touches[0].clientY;_lock=null;},{passive:true});
+  pop.addEventListener('touchmove',e=>{
+    if(_tx===null)return;
+    const dx=e.touches[0].clientX-_tx,dy=e.touches[0].clientY-_ty;
+    if(_lock===null&&(Math.abs(dx)>8||Math.abs(dy)>8))_lock=Math.abs(dx)>Math.abs(dy)?'h':'v';
+    if(_lock==='h')e.preventDefault();
+  },{passive:false});
   pop.addEventListener('touchend',e=>{
     if(_tx===null)return;
     const dx=e.changedTouches[0].clientX-_tx;
-    const dy=e.changedTouches[0].clientY-_ty;
-    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)&&DI!==null)dx<0?navDay(1):navDay(-1);
-    _tx=null;_ty=null;
+    if(_lock==='h'&&Math.abs(dx)>50&&DI!==null)dx<0?navDay(1):navDay(-1);
+    _tx=null;_ty=null;_lock=null;
   },{passive:true});
 })();
 
@@ -402,7 +409,7 @@ document.getElementById('bW').onclick=()=>{doPr(WEEKS[WK].days.map((_,i)=>i))};
 // Overview
 function openOverview(){
   const wk=WEEKS[WK];if(!wk)return;
-  closePop();
+  closePop();closeMenu();
   document.getElementById('owT').textContent=`Week ${wk.number} — ${wk.range}  ·  ${fL()}`;
   let h='';
   wk.days.forEach((d,idx)=>{
@@ -436,6 +443,69 @@ document.getElementById('owP').onclick=()=>{
   window.print();
 };
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('ow').classList.contains('a'))closeOverview()});
+
+// ── MENU PANEL ────────────────────────────────────────────────────────────
+const MENU_WK_LABELS={1:'Wk 1 · May 17–23',2:'Wk 2 · May 24–30',3:'Wk 3 · May 31–Jun 6',4:'Wk 4 · Jun 7–13'};
+const DAYS_SHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+let MN_WK=1;
+const MENU_DATES={1:'May 17–23',2:'May 24–30',3:'May 31–Jun 6',4:'Jun 7–13'};
+// Day date offsets per week (Sun=day 0) relative to week start
+const MENU_DAY_DATES={
+  1:['May 17','May 18','May 19','May 20','May 21','May 22','May 23'],
+  2:['May 24','May 25','May 26','May 27','May 28','May 29','May 30'],
+  3:['May 31','Jun 1','Jun 2','Jun 3','Jun 4','Jun 5','Jun 6'],
+  4:['Jun 7','Jun 8','Jun 9','Jun 10','Jun 11','Jun 12','Jun 13']
+};
+function renderMenu(wk){
+  MN_WK=wk;
+  const tabs=document.getElementById('mnTabs');
+  tabs.innerHTML=Object.keys(MENU_WK_LABELS).map(w=>
+    `<button class="mn-tab${+w===wk?' on':''}" onclick="renderMenu(${w})">${MENU_WK_LABELS[w]}</button>`
+  ).join('');
+  const sub=document.getElementById('mnSub');
+  if(sub) sub.textContent=MENU_DATES[wk]||'';
+  const days=MENU_DATA[String(wk)];
+  const dates=MENU_DAY_DATES[wk];
+  const e=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  function cell(d,mk,vk,hk,ak){
+    let h=`<div class="mn-reg">${e(d[mk])}</div>`;
+    if(d[vk]&&d[vk]!==d[mk])h+=`<div class="mn-veg">🌱 ${e(d[vk])}</div>`;
+    if(d[hk])h+=`<div class="mn-hal">☪ ${e(d[hk])}</div>`;
+    if(d[ak])h+=`<div class="mn-alg">⚠ ${e(d[ak])}</div>`;
+    return h;
+  }
+  // No phantom first column — 7 columns only
+  let h=`<thead><tr>${DAYS_SHORT.map((d,i)=>`<th>${d}<span class="mn-th-date">${dates[i]}</span></th>`).join('')}</tr></thead><tbody>`;
+  // Breakfast
+  h+=`<tr class="mn-sec-bf"><td colspan="7"><span class="mn-sh">☀ Breakfast</span></td></tr>`;
+  h+=`<tr class="mn-bf-row">${days.map(d=>`<td>
+    <div class="mn-reg">${e(d.bf)}</div>
+    ${d.bfv&&d.bfv!==d.bf?`<div class="mn-veg">🌱 ${e(d.bfv)}</div>`:''}
+    ${d.bfx?`<div class="mn-ext">+ ${e(d.bfx)}</div>`:''}
+    ${d.bfa?`<div class="mn-alg">⚠ ${e(d.bfa)}</div>`:''}
+  </td>`).join('')}</tr>`;
+  // Lunch
+  h+=`<tr class="mn-sec-lu"><td colspan="7"><span class="mn-sh">☀ Lunch</span></td></tr>`;
+  h+=`<tr class="mn-lu-row">${days.map(d=>`<td>${cell(d,'lu','luv','','lua')}</td>`).join('')}</tr>`;
+  // Dinner
+  h+=`<tr class="mn-sec-di"><td colspan="7"><span class="mn-sh">🌙 Dinner</span></td></tr>`;
+  h+=`<tr class="mn-di-row">${days.map(d=>`<td>${cell(d,'di','div','dih','dia')}</td>`).join('')}</tr>`;
+  h+=`</tbody>`;
+  document.getElementById('mnTbl').innerHTML=h;
+}
+function openMenu(){
+  closePop();closeOverview();
+  document.getElementById('mn').classList.add('a');
+  document.body.style.overflow='hidden';
+  renderMenu(MN_WK);
+}
+function closeMenu(){
+  document.getElementById('mn').classList.remove('a');
+  document.body.style.overflow='';
+}
+document.getElementById('mnbtn').onclick=openMenu;
+document.getElementById('mnX').onclick=closeMenu;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('mn').classList.contains('a'))closeMenu()});
 
 // ══════════════════════════════════════════════════════════════════════
 // SEARCH
@@ -578,4 +648,17 @@ renderWeek();
   }
 })();
 
-
+// ── DARK MODE ─────────────────────────────────────────────────────────────
+function toggleDark(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const next=isDark?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  localStorage.setItem('conc-theme',next);
+  document.getElementById('dmBtn').textContent=next==='dark'?'☀ Light Mode':'🌙 Dark Mode';
+}
+(function(){
+  if(document.documentElement.getAttribute('data-theme')==='dark'){
+    const btn=document.getElementById('dmBtn');
+    if(btn) btn.textContent='☀ Light Mode';
+  }
+})();

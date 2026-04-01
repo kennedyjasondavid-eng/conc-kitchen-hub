@@ -31,11 +31,13 @@ body {
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
 .hdr {
-  background: var(--tx);
+  background: #1e1c19;
   color: #fff;
   border-radius: 10px;
   padding: 16px 22px;
   margin-bottom: 24px;
+  border: 1.5px solid rgba(255,255,255,.18);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.06);
 }
 .hdr h1 {
   font-size: 20px;
@@ -198,3 +200,55 @@ body {
 }
 .sheetjs-fix a:hover { text-decoration: underline; }
 .sheetjs-card.ok { border-color: #b6d7a8; background: #f9fcf7; }
+
+/* ── Dark mode ───────────────────────────────────────────────────────────── */
+/* System preference — applies unless user has explicitly set light */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1c1b18; --tx: #e0dbd2; --tx2: #90897f;
+    --card: #252320; --bdr: #3a3835;
+  }
+}
+/* Explicit dark override */
+[data-theme="dark"] {
+  --bg: #1c1b18; --tx: #e0dbd2; --tx2: #90897f;
+  --card: #252320; --bdr: #3a3835;
+}
+/* Explicit light override (cancel system dark) */
+[data-theme="light"] {
+  --bg: #f7f6f3; --tx: #2c2a26; --tx2: #666;
+  --card: #fff; --bdr: #e8e4dd;
+}
+
+/* Element fixes for dark */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .drop:hover,:root:not([data-theme="light"]) .drop.over{background:#1a2535}
+  :root:not([data-theme="light"]) .drop.loaded{background:#182212}
+  :root:not([data-theme="light"]) .fridge-info.has-data{background:#182212}
+  :root:not([data-theme="light"]) .fridge-info.empty{background:#2a2010;color:#d49020}
+  :root:not([data-theme="light"]) .sheetjs-card.ok{background:#182212;border-color:#2a4020}
+  :root:not([data-theme="light"]) .sheetjs-fix code{background:#2d2b27}
+  :root:not([data-theme="light"]) .log-section{border-color:var(--bdr)}
+}
+[data-theme="dark"] .drop:hover,[data-theme="dark"] .drop.over{background:#1a2535}
+[data-theme="dark"] .drop.loaded{background:#182212}
+[data-theme="dark"] .fridge-info.has-data{background:#182212}
+[data-theme="dark"] .fridge-info.empty{background:#2a2010;color:#d49020}
+[data-theme="dark"] .sheetjs-card.ok{background:#182212;border-color:#2a4020}
+[data-theme="dark"] .sheetjs-fix code{background:#2d2b27}
+[data-theme="dark"] .log-section{border-color:var(--bdr)}
+
+/* Dark mode toggle button */
+.dm-toggle {
+  margin-left: auto; flex-shrink: 0;
+  padding: 6px 14px; font-family: inherit; font-size: 12px; font-weight: 700;
+  border: 1.5px solid rgba(255,255,255,.35); border-radius: 20px;
+  background: rgba(255,255,255,.1); color: #fff;
+  cursor: pointer; transition: background .15s; white-space: nowrap; letter-spacing: .2px;
+}
+.dm-toggle:hover { background: rgba(255,255,255,.22); }
+
+/* Logo in header */
+.hdr { display: flex; align-items: center; gap: 14px; }
+.hdr-logo { width: 44px; height: 44px; border-radius: 6px; flex-shrink: 0; image-rendering: crisp-edges; }
+.hdr-tx { flex: 1 1 auto; min-width: 0; }

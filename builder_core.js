@@ -689,7 +689,7 @@ function validateJs(hubHtml) {
   const results = { ok: true, errors: [] };
 
   // Extract script block
-  const scriptStart = hubHtml.indexOf('<script>');
+  const scriptStart = hubHtml.lastIndexOf('<script>');
   const scriptEnd   = hubHtml.lastIndexOf('</script>');
   if (scriptStart === -1 || scriptEnd === -1) {
     results.ok = false;
