@@ -229,6 +229,11 @@
   .mn-ext{font-size:11.5px;color:var(--tm);margin-top:3px}
   @media(max-width:700px){.mn-bd{padding:10px 12px 40px}.mn-tabs{padding:10px 12px 0}.mn-legend{padding:8px 12px 0}}
   @media print{#mn.a .mn-bar .pb,#mn.a .mn-bar .px{display:none!important}}
+  .mn-print-hd{display:none;font-size:15px;font-weight:700;text-align:center;padding:6px 28px 8px;border-bottom:2px solid #ccc;margin-bottom:4px;letter-spacing:-.2px}
+  #mn-all-print{display:none}
+  #mn-all-print .mn-all-hd{font-size:14px;font-weight:700;text-align:center;padding:7px 14px;background:#2c2a26;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #mn-all-print .mn-all-pb{page-break-before:always}
+  @media print{.mn-print-hd{display:block!important}}
 
   /* ─── PRINT ────────────────────────────────────── */
   #pa{display:none}
@@ -420,7 +425,7 @@
   <a href="01_Production_Schedule_generated.xlsx" download>📊 Production Schedule</a>
   <a href="03_Driver_Schedule_generated.xlsx" download>🚐 Driver Schedule</a>
   <a href="Labour_Report_generated.xlsx" download>⏱ Labour Report</a>
-  <a href="Renovation_4_Week_Menu5.xlsx" download>🍽 4-Week Menu</a>
+  <a href="02_Renovation_4_Week_Menu.xlsx" download>🍽 4-Week Menu</a>
 </div>
 
 <div class="ov" id="ov"></div>
@@ -458,10 +463,12 @@
       <div class="mn-sub" id="mnSub"></div>
     </div>
     <div class="pop-hd-b">
-      <button class="pb" onclick="window.print()">🖨 Print</button>
+      <button class="pb" id="mnPrintWk">🖨 Print Week</button>
+      <button class="pb" id="mnPrintAll">🖨 Print All</button>
       <button class="px" id="mnX">&times;</button>
     </div>
   </div>
+  <div class="mn-print-hd" id="mnPrintHd"></div>
   <div class="mn-legend">
     <span>🌱 <strong>Vegan option</strong></span>
     <span>☪ <strong>Halal option</strong></span>
@@ -2420,6 +2427,52 @@ document.getElementById('mnbtn').onclick=openMenu;
 document.getElementById('mnX').onclick=closeMenu;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('mn').classList.contains('a'))closeMenu()});
 
+// ── MENU PRINT ────────────────────────────────────────────────────────────────
+function buildMenuTable(wk){
+  const days=MENU_DATA[String(wk)],dates=MENU_DAY_DATES[wk];
+  const e=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  function cell(d,mk,vk,hk,ak){
+    let h=`<div class="mn-reg">${e(d[mk])}</div>`;
+    if(d[vk]&&d[vk]!==d[mk])h+=`<div class="mn-veg">🌱 ${e(d[vk])}</div>`;
+    if(d[hk])h+=`<div class="mn-hal">☪ ${e(d[hk])}</div>`;
+    if(d[ak])h+=`<div class="mn-alg">⚠ ${e(d[ak])}</div>`;
+    return h;
+  }
+  let h=`<table class="mn-tbl"><thead><tr>${DAYS_SHORT.map((d,i)=>`<th>${d}<span class="mn-th-date">${dates[i]}</span></th>`).join('')}</tr></thead><tbody>`;
+  h+=`<tr class="mn-sec-bf"><td colspan="7"><span class="mn-sh">☀ Breakfast</span></td></tr>`;
+  h+=`<tr class="mn-bf-row">${days.map(d=>`<td><div class="mn-reg">${e(d.bf)}</div>${d.bfv&&d.bfv!==d.bf?`<div class="mn-veg">🌱 ${e(d.bfv)}</div>`:''}${d.bfx?`<div class="mn-ext">+ ${e(d.bfx)}</div>`:''}${d.bfa?`<div class="mn-alg">⚠ ${e(d.bfa)}</div>`:''}</td>`).join('')}</tr>`;
+  h+=`<tr class="mn-sec-lu"><td colspan="7"><span class="mn-sh">☀ Lunch</span></td></tr>`;
+  h+=`<tr class="mn-lu-row">${days.map(d=>`<td>${cell(d,'lu','luv','','lua')}</td>`).join('')}</tr>`;
+  h+=`<tr class="mn-sec-di"><td colspan="7"><span class="mn-sh">🌙 Dinner</span></td></tr>`;
+  h+=`<tr class="mn-di-row">${days.map(d=>`<td>${cell(d,'di','div','dih','dia')}</td>`).join('')}</tr>`;
+  return h+`</tbody></table>`;
+}
+let _mnPrintAll=false;
+window.addEventListener('beforeprint',function(){
+  if(_mnPrintAll){document.getElementById('mn').style.display='none';document.getElementById('mn-all-print').style.display='block';}
+});
+window.addEventListener('afterprint',function(){
+  if(_mnPrintAll){
+    document.getElementById('mn').style.display='';
+    document.getElementById('mn-all-print').style.display='none';
+    document.getElementById('mn-all-print').innerHTML='';
+    _mnPrintAll=false;
+  }
+});
+document.getElementById('mnPrintWk').onclick=function(){
+  document.getElementById('mnPrintHd').textContent='CONC Kitchen — Week '+MN_WK+' Menu · '+MENU_DATES[MN_WK]+', 2026';
+  window.print();
+};
+document.getElementById('mnPrintAll').onclick=function(){
+  let html='';
+  for(let wk=1;wk<=4;wk++){
+    html+=`<div${wk>1?' class="mn-all-pb"':''}><div class="mn-all-hd">CONC Kitchen — Week ${wk} Menu · ${MENU_DATES[wk]}, 2026</div><div class="mn-wrap">${buildMenuTable(wk)}</div></div>`;
+  }
+  document.getElementById('mn-all-print').innerHTML=html;
+  _mnPrintAll=true;
+  window.print();
+};
+
 // ── DARK MODE ─────────────────────────────────────────────────────────────
 function toggleDark(){
   const isDark=document.documentElement.getAttribute('data-theme')==='dark';
@@ -2437,5 +2490,6 @@ function toggleDark(){
 
 
 </script>
+<div id="mn-all-print"></div>
 </body>
 </html>
