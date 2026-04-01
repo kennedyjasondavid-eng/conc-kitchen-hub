@@ -1034,28 +1034,37 @@ def generate_labour_report(rows):
         det_ri = 2
         by_day_site = defaultdict(lambda: defaultdict(lambda: {'active':0,'oven':0}))
 
-        for r in wk_rows:
+        # Group rows by day, preserving source order (chronological) within each day
+        by_day_rows = defaultdict(list)
+        for idx, r in enumerate(wk_rows):
             day = r['day'].strip().upper()
             if day not in DAYS:
                 continue
-            site = r.get('site','Bloor')
-            act, ov = labour_times(r)
-            cook = str(r.get('cook_min','') or '')
-            # Accumulate for summary
-            site_key = 'LAN' if site == 'LAN' else 'Bloor'
-            by_day_site[day][site_key]['active'] += act
-            by_day_site[day][site_key]['oven']   += ov
+            by_day_rows[day].append((idx, r))
 
-            vals = [DAY_NAMES[DAYS.index(day)], r['type'], r['item'],
-                    site, cook, act, ov, r.get('notes','')]
-            fill = 'FFE2EFDA' if site_key == 'Bloor' else 'FFFFF2CC'
-            for ci,v in enumerate(vals,1):
-                c = ws_det.cell(det_ri,ci,v)
-                c.font = Font(size=9)
-                c.alignment = Alignment(wrap_text=True,vertical='center')
-                c.fill = PatternFill('solid',fgColor=fill)
-                c.border = border
-            det_ri += 1
+        for day_upper in DAYS:
+            # Sort by site alphabetically, then by original source index within each site
+            day_rows = sorted(by_day_rows[day_upper],
+                              key=lambda x: (x[1].get('site', 'Bloor'), x[0]))
+            for _, r in day_rows:
+                site = r.get('site','Bloor')
+                act, ov = labour_times(r)
+                cook = str(r.get('cook_min','') or '')
+                # Accumulate for summary
+                site_key = 'LAN' if site == 'LAN' else 'Bloor'
+                by_day_site[day_upper][site_key]['active'] += act
+                by_day_site[day_upper][site_key]['oven']   += ov
+
+                vals = [DAY_NAMES[DAYS.index(day_upper)], r['type'], r['item'],
+                        site, cook, act, ov, r.get('notes','')]
+                fill = 'FFE2EFDA' if site_key == 'Bloor' else 'FFFFF2CC'
+                for ci,v in enumerate(vals,1):
+                    c = ws_det.cell(det_ri,ci,v)
+                    c.font = Font(size=9)
+                    c.alignment = Alignment(wrap_text=True,vertical='center')
+                    c.fill = PatternFill('solid',fgColor=fill)
+                    c.border = border
+                det_ri += 1
 
         # Write summary rows for this week
         for day_idx, day_upper in enumerate(DAYS):
